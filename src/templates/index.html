@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kolekcja Cytatów</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #0056b3;
+        }
+
+        .quote {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            display: inline-block;
+        }
+
+        .quote-content {
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .quote-author {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .quote-meta,
+        .quote-context {
+            font-size: 0.9em;
+            color: #777;
+            margin-top: 5px;
+        }
+
+        #mode-toggle {
+            margin-top: 10px;
+            margin-bottom: 20px;
+            padding: 8px 16px;
+            font-size: 1em;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #mode-toggle:hover {
+            background-color: #003f88;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Cytaty</h1>
+        <h2>Mateusz Kwiatkowski, Krzysztof Słowiński</h2>
+        <div class="quote" id="quote-box">
+            <p class="quote-content" id="quote-content"></p>
+            <p class="quote-author" id="quote-author"></p>
+            <p class="quote-meta" id="quote-meta"></p>
+            <p class="quote-context" id="quote-context"></p>
+        </div>
+        <p></p>
+        <button id="mode-toggle">Tryb: Kolejno</button>
+    </div>
+
+    <script>
+        const quotes = [
+            {% for quote in quotes %}
+        {
+            content: `{{ quote.content|escape }}`,
+                author: `{{ quote.author|escape }}`,
+                    date: `{{ quote.date.strftime('%d-%m-%Y') }}`,
+                        time: `{{ quote.time.strftime('%H:%M') }}`,
+                            context: `{{ quote.context|default('', true)|escape }}`
+        } {% if not loop.last %}, {% endif %}
+        {% endfor %}
+        ];
+
+        let currentIndex = 0;
+        let randomMode = false;
+
+        function showQuote(index) {
+            const quote = quotes[index];
+            document.getElementById('quote-content').textContent = `"${quote.content}"`;
+            document.getElementById('quote-author').textContent = `- ${quote.author}`;
+            document.getElementById('quote-meta').textContent = `Data: ${quote.date} | Godzina: ${quote.time}`;
+            document.getElementById('quote-context').textContent = quote.context ? `Kontekst: ${quote.context}` : '';
+        }
+
+        function nextQuote() {
+            if (randomMode) {
+                currentIndex = Math.floor(Math.random() * quotes.length);
+            } else {
+                currentIndex = (currentIndex + 1) % quotes.length;
+            }
+            showQuote(currentIndex);
+        }
+
+        if (quotes.length > 0) {
+            showQuote(currentIndex);
+            setInterval(nextQuote, 1000);
+        }
+
+        document.getElementById('mode-toggle').addEventListener('click', () => {
+            randomMode = !randomMode;
+            document.getElementById('mode-toggle').textContent = `Tryb: ${randomMode ? 'Losowo' : 'Kolejno'}`;
+        });
+    </script>
+</body>
+
+</html>
